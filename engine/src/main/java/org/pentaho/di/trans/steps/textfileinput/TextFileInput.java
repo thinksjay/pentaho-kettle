@@ -906,6 +906,7 @@ public class TextFileInput extends BaseStep implements StepInterface {
           fileRow = getRowFrom( data.rowSet );
         }
 
+
         if ( data.getFiles().nrOfFiles() == 0 ) {
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "TextFileInput.Log.Error.NoFilesSpecified" ) );

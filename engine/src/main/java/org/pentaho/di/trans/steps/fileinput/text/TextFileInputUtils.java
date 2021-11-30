@@ -439,12 +439,12 @@ public class TextFileInputUtils {
                                                  TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
                                                  RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
                                                  String escapeCharacter, FileErrorHandler errorHandler,
-                                                 BaseFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
-                                                 boolean hidden, Date modificationDateTime, String uri, String rooturi, String extension, Long size )
+                                                 TextFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
+                                                 boolean hidden, Date modificationDateTime, String uri, String rooturi,String fileFields, String extension, Long size )
     throws KettleException {
     return convertLineToRow( log, textFileLine, info, passThruFields, nrPassThruFields, outputRowMeta,
       convertRowMeta, fname, rowNr, delimiter, enclosure, escapeCharacter, errorHandler, additionalOutputFields,
-      shortFilename, path, hidden, modificationDateTime, uri, rooturi, extension, size, true );
+      shortFilename, path, hidden, modificationDateTime, uri, rooturi,fileFields, extension, size, true );
   }
 
   /**
@@ -457,8 +457,8 @@ public class TextFileInputUtils {
       TextFileInputMeta info, Object[] passThruFields, int nrPassThruFields, RowMetaInterface outputRowMeta,
       RowMetaInterface convertRowMeta, String fname, long rowNr, String delimiter, String enclosure,
       String escapeCharacter, FileErrorHandler errorHandler,
-      BaseFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
-      boolean hidden, Date modificationDateTime, String uri, String rooturi, String extension, Long size,
+      TextFileInputAdditionalField additionalOutputFields, String shortFilename, String path,
+      boolean hidden, Date modificationDateTime, String uri, String rooturi,String fileFields, String extension, Long size,
       final boolean failOnParseError )
         throws KettleException {
     if ( textFileLine == null || textFileLine.line == null ) {
@@ -491,6 +491,95 @@ public class TextFileInputUtils {
       // System.out.println("Convertings line to string ["+line+"]");
       String[] strings = convertLineToStrings( log, textFileLine.line, info, delimiter, enclosure, escapeCharacter );
       int shiftFields = ( passThruFields == null ? 0 : nrPassThruFields );
+
+      // none of this applies if we're skipping the row
+      if ( r != null ) {
+        int index;
+        if(info.getAutoGenerationFileField())
+        {
+          index=shiftFields;
+        }
+        else
+        {
+          index=shiftFields + nrfields;
+        }
+        // Add the error handling fields...
+        if ( errorCount != null ) {
+          r[index] = errorCount;
+          index++;
+        }
+        if ( errorFields != null ) {
+          r[index] = errorFields;
+          index++;
+        }
+        if ( errorText != null ) {
+          r[index] = errorText;
+          index++;
+        }
+
+        // Possibly add a filename...
+        if ( info.content.includeFilename ) {
+          r[index] = fname;
+          index++;
+        }
+
+        // Possibly add a row number...
+        if ( info.content.includeRowNumber ) {
+          r[index] = new Long( rowNr );
+          index++;
+        }
+
+        // Possibly add short filename...
+        if ( additionalOutputFields.shortFilenameField != null ) {
+          r[index] = shortFilename;
+          index++;
+        }
+        // Add Extension
+        if ( additionalOutputFields.extensionField != null ) {
+          r[index] = extension;
+          index++;
+        }
+        // add path
+        if ( additionalOutputFields.pathField != null ) {
+          r[index] = path;
+          index++;
+        }
+        // Add Size
+        if ( additionalOutputFields.sizeField != null ) {
+          r[index] = size;
+          index++;
+        }
+        // add Hidden
+        if ( additionalOutputFields.hiddenField != null ) {
+          r[index] = hidden;
+          index++;
+        }
+        // Add modification date
+        if ( additionalOutputFields.lastModificationField != null ) {
+          r[index] = modificationDateTime;
+          index++;
+        }
+        // Add Uri
+        if ( additionalOutputFields.uriField != null ) {
+          r[index] = uri;
+          index++;
+        }
+        // Add RootUri
+        if ( additionalOutputFields.rootUriField != null ) {
+          r[index] = rooturi;
+          index++;
+        }
+        // Add File Fields
+        if ( additionalOutputFields.fileFieldsField != null ) {
+          r[index] = fileFields;
+          index++;
+        }
+        if(info.getAutoGenerationFileField())
+        {
+          shiftFields=index;
+        }
+      } // End if r != null
+
       for ( fieldnr = 0; fieldnr < nrfields; fieldnr++ ) {
         BaseFileField f = info.inputFields[fieldnr];
         int valuenr = shiftFields + fieldnr;
@@ -569,8 +658,8 @@ public class TextFileInputUtils {
         }
       }
 
-      // none of this applies if we're skipping the row
-      if ( r != null ) {
+      if(r!=null)
+      {
         // Support for trailing nullcols!
         // Should be OK at allocation time, but it doesn't hurt :-)
         if ( fieldnr < nrfields ) {
@@ -578,75 +667,7 @@ public class TextFileInputUtils {
             r[shiftFields + i] = null;
           }
         }
-
-        // Add the error handling fields...
-        int index = shiftFields + nrfields;
-        if ( errorCount != null ) {
-          r[index] = errorCount;
-          index++;
-        }
-        if ( errorFields != null ) {
-          r[index] = errorFields;
-          index++;
-        }
-        if ( errorText != null ) {
-          r[index] = errorText;
-          index++;
-        }
-
-        // Possibly add a filename...
-        if ( info.content.includeFilename ) {
-          r[index] = fname;
-          index++;
-        }
-
-        // Possibly add a row number...
-        if ( info.content.includeRowNumber ) {
-          r[index] = new Long( rowNr );
-          index++;
-        }
-
-        // Possibly add short filename...
-        if ( additionalOutputFields.shortFilenameField != null ) {
-          r[index] = shortFilename;
-          index++;
-        }
-        // Add Extension
-        if ( additionalOutputFields.extensionField != null ) {
-          r[index] = extension;
-          index++;
-        }
-        // add path
-        if ( additionalOutputFields.pathField != null ) {
-          r[index] = path;
-          index++;
-        }
-        // Add Size
-        if ( additionalOutputFields.sizeField != null ) {
-          r[index] = size;
-          index++;
-        }
-        // add Hidden
-        if ( additionalOutputFields.hiddenField != null ) {
-          r[index] = hidden;
-          index++;
-        }
-        // Add modification date
-        if ( additionalOutputFields.lastModificationField != null ) {
-          r[index] = modificationDateTime;
-          index++;
-        }
-        // Add Uri
-        if ( additionalOutputFields.uriField != null ) {
-          r[index] = uri;
-          index++;
-        }
-        // Add RootUri
-        if ( additionalOutputFields.rootUriField != null ) {
-          r[index] = rooturi;
-          index++;
-        }
-      } // End if r != null
+      }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString( PKG, "TextFileInput.Log.Error.ErrorConvertingLineText" ), e );
     }

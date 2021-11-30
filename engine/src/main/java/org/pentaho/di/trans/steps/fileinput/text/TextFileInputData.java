@@ -52,6 +52,8 @@ public class TextFileInputData extends BaseFileInputStepData {
 
   public FilePlayList filePlayList;
 
+  public String fildFields;
+
   public TextFileFilterProcessor filterProcessor;
 
   public StringBuilder lineStringBuilder;

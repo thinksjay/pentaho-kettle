@@ -52,11 +52,7 @@ import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.steps.file.BaseFileField;
 import org.pentaho.di.trans.steps.file.BaseFileInputAdditionalField;
-import org.pentaho.di.trans.steps.fileinput.text.BufferedInputStreamReader;
-import org.pentaho.di.trans.steps.fileinput.text.EncodingType;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileInputMeta;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileInputUtils;
-import org.pentaho.di.trans.steps.fileinput.text.TextFileLine;
+import org.pentaho.di.trans.steps.fileinput.text.*;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.trans.step.common.CsvInputAwareImportProgressDialog;
 
@@ -322,7 +318,7 @@ public class TextFileCSVImportProgressDialog implements CsvInputAwareImportProgr
               outputRowMeta, convertRowMeta, FileInputList.createFilePathList( transMeta, meta.inputFiles.fileName,
                   meta.inputFiles.fileMask, meta.inputFiles.excludeFileMask, meta.inputFiles.fileRequired, meta
                       .inputFiles.includeSubFolderBoolean() )[0], rownumber, delimiter, enclosure, escapeCharacter, null,
-              new BaseFileInputAdditionalField(), null, null, false, null, null, null, null, null, failOnParseError );
+              new TextFileInputAdditionalField(), null, null, false, null, null, null,null, null, null, failOnParseError );
 
       if ( r == null ) {
         errorFound = true;

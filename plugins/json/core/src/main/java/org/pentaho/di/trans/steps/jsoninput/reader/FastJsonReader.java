@@ -22,11 +22,7 @@
 
 package org.pentaho.di.trans.steps.jsoninput.reader;
 
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.ParseContext;
-import com.jayway.jsonpath.ReadContext;
+import com.jayway.jsonpath.*;
 import org.pentaho.di.core.RowSet;
 import org.pentaho.di.core.SingleRowRowSet;
 import org.pentaho.di.core.exception.KettleException;
@@ -91,7 +87,6 @@ public class FastJsonReader implements IJsonReader {
     this.step = step;
     this.log = log;
 
-    setJsonConfiguration( defaultPathLeafToNull );
     setInputFields( inputFields );
   }
 
